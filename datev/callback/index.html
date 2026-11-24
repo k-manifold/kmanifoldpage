@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Adresse (mit Code) nicht an andere Seiten weitergeben, nicht von Suchmaschinen erfassen -->
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Anmeldung abschließen</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 640px;
+         margin: 3rem auto; padding: 0 1rem; color: #1d1d1f; line-height: 1.5; }
+  h1 { font-size: 1.4rem; }
+  textarea { width: 100%; height: 7rem; font-family: ui-monospace, Menlo, monospace; font-size: .85rem;
+             padding: .5rem; border: 1px solid #c7c7cc; border-radius: 8px; box-sizing: border-box; }
+  button { margin-top: .75rem; padding: .6rem 1.2rem; font-size: 1rem; border: 0; border-radius: 8px;
+           background: #0071e3; color: #fff; cursor: pointer; }
+  .ok { color: #1a7f37; } .fehler { color: #c62828; }
+  p.klein { font-size: .85rem; color: #6e6e73; }
+</style>
+</head>
+<body>
+<h1 id="titel">Anmeldung abschließen</h1>
+<p id="text">Kopiere die folgende Adresse und füge sie im Terminal bei <code>Adresse:</code> ein.</p>
+<textarea id="adresse" readonly></textarea>
+<button id="kopieren">Adresse kopieren</button>
+<p id="status"></p>
+<p class="klein">Diese Seite speichert und sendet nichts. Der Code in der Adresse ist nur einmal
+und nur wenige Minuten gültig und ohne das Client-Secret auf deinem Mac wertlos.</p>
+<script>
+  var url = window.location.href;
+  var feld = document.getElementById("adresse");
+  feld.value = url;
+  var p = new URLSearchParams(window.location.search);
+  if (p.get("error")) {
+    document.getElementById("titel").textContent = "Anmeldung abgelehnt";
+    document.getElementById("titel").className = "fehler";
+    document.getElementById("text").textContent =
+      "DATEV meldet: " + p.get("error") + (p.get("error_description") ? " – " + p.get("error_description") : "") +
+      ". Füge die Adresse trotzdem im Terminal ein, dann zeigt das Skript den Fehler an.";
+  } else if (!p.get("code")) {
+    document.getElementById("text").textContent =
+      "Diese Seite wird nur nach der DATEV-Anmeldung über das Skript benötigt.";
+  }
+  document.getElementById("kopieren").onclick = function () {
+    feld.select();
+    var fertig = function () {
+      var s = document.getElementById("status");
+      s.textContent = "Kopiert – jetzt im Terminal einfügen (⌘V) und Enter drücken.";
+      s.className = "ok";
+    };
+    if (navigator.clipboard) { navigator.clipboard.writeText(url).then(fertig, function () {
+      document.execCommand("copy"); fertig(); }); }
+    else { document.execCommand("copy"); fertig(); }
+  };
+</script>
+</body>
+</html>
